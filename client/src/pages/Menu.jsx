@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Star, Clock, ShoppingBag } from 'lucide-react';
+import { Star, Clock, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { API_URL } from '../config';
 
@@ -34,14 +34,22 @@ const Menu = () => {
         {/* Banner */}
         {/* Banner */}
         <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
-            <img src={restaurant.image} alt={restaurant.name} className="w-full h-full object-cover scale-105" />
+            <img src={restaurant.image} alt={restaurant.name} className="w-full h-full object-cover scale-105 opacity-90" />
             <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/40 to-transparent" />
+            
+            {/* Back Button */}
+            <a href="/services" className="absolute top-6 left-6 z-20 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full backdrop-blur-sm transition-all border border-white/10 group">
+                 <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={24} />
+            </a>
+
             <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full max-w-7xl mx-auto z-10">
-                <h1 className="text-4xl md:text-6xl font-black text-white mb-2 tracking-tight drop-shadow-lg">{restaurant.name}</h1>
-                <div className="flex flex-wrap items-center gap-4 text-lg font-medium backdrop-blur-md bg-white/10 p-3 rounded-lg inline-flex border border-white/10">
+                <h1 className="text-4xl md:text-7xl font-black text-white mb-3 tracking-tighter drop-shadow-2xl">{restaurant.name}</h1>
+                <div className="flex flex-wrap items-center gap-4 text-lg font-medium backdrop-blur-md bg-white/10 p-4 rounded-2xl inline-flex border border-white/10 shadow-xl">
                     <span className="flex items-center gap-1 text-brand-yellow font-bold"><Star className="fill-brand-yellow" size={20} /> {restaurant.rating}</span>
-                    <span className="text-white/90">• {restaurant.time}</span>
-                    <span className="text-white/90">• {restaurant.deliveryFee} Delivery</span>
+                    <span className="text-white/80">|</span>
+                    <span className="text-white/90">{restaurant.time}</span>
+                    <span className="text-white/80">|</span>
+                    <span className="text-white/90">{restaurant.deliveryFee} Delivery</span>
                 </div>
             </div>
         </div>
