@@ -14,11 +14,11 @@ const Home = () => {
           autoPlay 
           loop 
           muted 
-          className="absolute w-full h-full object-cover z-0"
+          playsInline
+          className="absolute w-full h-full object-cover z-0 opacity-50"
           poster="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070"
         >
           <source src="https://v.pinimg.com/videos/iht/720p/2e/03/49/2e0349w84b7a1e0b503020613290b05.mp4" type="video/mp4" />
-           {/* Fallback to image if video fails or is blocked */}
            Your browser does not support the video tag.
         </video>
 

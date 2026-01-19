@@ -10,14 +10,24 @@ const Cart = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  /* Step 2: Add Loading State */
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
   const handleCheckout = async () => {
     if (!user) {
         navigate('/login');
         return;
     }
 
+    /* Start Processing */
+    setIsProcessing(true);
+
     try {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        
+        /* Simulate Payment Gateway Delay */
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         const response = await fetch(`${API_URL}/api/orders`, {
             method: 'POST',
             headers: {
@@ -27,19 +37,22 @@ const Cart = () => {
             body: JSON.stringify({
                 orderItems: cart,
                 totalPrice: cartTotal + 2.99 + (cartTotal * 0.1),
-                paymentMethod: 'Stripe' // Mock
+                paymentMethod: 'Credit Card' // Mock selected
             })
         });
 
         if (response.ok) {
             clearCart();
-            alert('Order Placed Successfully!');
-            navigate('/services'); // Or order tracking page
+            setIsProcessing(false);
+            alert('🎉 Payment Successful! Order Placed.');
+            navigate('/services'); 
         } else {
             alert('Failed to place order');
+            setIsProcessing(false);
         }
     } catch (error) {
         console.error('Checkout error:', error);
+        setIsProcessing(false);
     }
   };
 
@@ -87,9 +100,21 @@ const Cart = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sticky top-24">
-                    <h3 className="text-2xl font-bold mb-6 text-white">Summary</h3>
+            {/* Order Summary & Payment */}
+            <div className="lg:col-span-1">
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sticky top-24 shadow-2xl">
+                    <h3 className="text-2xl font-bold mb-6 text-white border-b border-gray-800 pb-4">Payment Details</h3>
                     
+                    {/* Payment Info Mockup */}
+                    <div className="mb-6 space-y-3">
+                        <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Select Payment Method</p>
+                        <div className="grid grid-cols-3 gap-2">
+                            <button className="p-3 border border-brand-yellow bg-brand-yellow/10 rounded-lg flex flex-col items-center justify-center text-brand-yellow transition-all"><span className="font-bold text-xs">CARD</span></button>
+                            <button className="p-3 border border-gray-700 bg-gray-800 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-gray-500 transition-all"><span className="font-bold text-xs">UPI</span></button>
+                            <button className="p-3 border border-gray-700 bg-gray-800 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-gray-500 transition-all"><span className="font-bold text-xs">CASH</span></button>
+                        </div>
+                    </div>
+
                     <div className="space-y-3 mb-6 border-b border-gray-800 pb-6">
                         <div className="flex justify-between text-gray-400">
                             <span>Subtotal</span>
@@ -100,21 +125,26 @@ const Cart = () => {
                             <span>$2.99</span>
                         </div>
                         <div className="flex justify-between text-gray-400">
-                            <span>Taxes</span>
+                            <span>Taxes (10%)</span>
                             <span>${(cartTotal * 0.1).toFixed(2)}</span>
                         </div>
                     </div>
                     
-                    <div className="flex justify-between text-xl font-bold text-brand-yellow mb-8">
+                    <div className="flex justify-between text-2xl font-black text-white mb-8">
                         <span>Total</span>
-                        <span>${(cartTotal + 2.99 + (cartTotal * 0.1)).toFixed(2)}</span>
+                        <span className="text-brand-yellow">${(cartTotal + 2.99 + (cartTotal * 0.1)).toFixed(2)}</span>
                     </div>
                     
-                    <button onClick={handleCheckout} className="w-full bg-brand-yellow text-brand-black font-bold py-4 rounded-xl hover:bg-white transition-all flex items-center justify-center gap-2 group">
-                        Proceed to Checkout
-                        <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                    <button onClick={handleCheckout} disabled={isProcessing} className="w-full bg-gradient-to-r from-brand-yellow to-yellow-600 text-brand-black font-bold py-4 rounded-xl hover:from-white hover:to-gray-200 transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-brand-yellow/20">
+                        {isProcessing ? (
+                            <span className="flex items-center gap-2 animate-pulse">Processing Payment...</span>
+                        ) : (
+                            <>Confirm Payment <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>
+                        )}
                     </button>
+                    <p className="text-xs text-gray-500 text-center mt-4">Secure 256-bit SSL Encrypted Payment</p>
                 </div>
+            </div>
             </div>
         </div>
       </div>

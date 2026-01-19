@@ -32,15 +32,16 @@ const Menu = () => {
   return (
     <div className="min-h-screen bg-brand-black text-white pt-20">
         {/* Banner */}
-        <div className="h-64 md:h-80 relative">
-            <img src={restaurant.image} alt={restaurant.name} className="w-full h-full object-cover opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full max-w-7xl mx-auto">
-                <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">{restaurant.name}</h1>
-                <div className="flex items-center gap-4 text-lg">
-                    <span className="flex items-center gap-1 text-brand-yellow font-bold"><Star className="fill-brand-yellow" /> {restaurant.rating}</span>
-                    <span className="text-gray-300">• {restaurant.time}</span>
-                    <span className="text-gray-300">• {restaurant.deliveryFee} Delivery</span>
+        {/* Banner */}
+        <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
+            <img src={restaurant.image} alt={restaurant.name} className="w-full h-full object-cover scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/40 to-transparent" />
+            <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full max-w-7xl mx-auto z-10">
+                <h1 className="text-4xl md:text-6xl font-black text-white mb-2 tracking-tight drop-shadow-lg">{restaurant.name}</h1>
+                <div className="flex flex-wrap items-center gap-4 text-lg font-medium backdrop-blur-md bg-white/10 p-3 rounded-lg inline-flex border border-white/10">
+                    <span className="flex items-center gap-1 text-brand-yellow font-bold"><Star className="fill-brand-yellow" size={20} /> {restaurant.rating}</span>
+                    <span className="text-white/90">• {restaurant.time}</span>
+                    <span className="text-white/90">• {restaurant.deliveryFee} Delivery</span>
                 </div>
             </div>
         </div>
