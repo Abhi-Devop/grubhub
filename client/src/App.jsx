@@ -9,6 +9,7 @@ import Signup from './pages/Signup';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Admin from './pages/Admin';
+import Footer from './components/Footer';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/admin" element={<Admin />} />
               </Routes>
             </main>
+            <Footer />
           </div>
         </Router>
       </CartProvider>
