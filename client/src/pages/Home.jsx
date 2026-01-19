@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <div className="relative min-h-screen bg-brand-black text-white overflow-hidden">
       {/* Hero Section with Video Background */}
-      <div className="relative h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative h-[100dvh] flex items-center justify-center overflow-hidden">
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/60 z-10" />
         
