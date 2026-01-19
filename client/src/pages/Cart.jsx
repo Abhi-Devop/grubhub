@@ -98,8 +98,6 @@ const Cart = () => {
                 ))}
             </div>
 
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
             {/* Order Summary & Payment */}
             <div className="lg:col-span-1">
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sticky top-24 shadow-2xl">
@@ -142,9 +140,7 @@ const Cart = () => {
                             <>Confirm Payment <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>
                         )}
                     </button>
-                    <p className="text-xs text-gray-500 text-center mt-4">Secure 256-bit SSL Encrypted Payment</p>
                 </div>
-            </div>
             </div>
         </div>
       </div>
