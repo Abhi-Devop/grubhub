@@ -38,7 +38,7 @@ const Home = () => {
               Order Now
               <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </a>
-            <a href="/menu" className="px-10 py-4 rounded-full font-bold text-lg border border-white/30 hover:bg-white/10 backdrop-blur-sm transition-all text-white">
+            <a href="/services" className="px-10 py-4 rounded-full font-bold text-lg border border-white/30 hover:bg-white/10 backdrop-blur-sm transition-all text-white">
               View Menu
             </a>
           </div>
