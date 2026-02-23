@@ -1,0 +1,61 @@
+2026-02-22T12:03:04Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-02-22T12:03:04Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-02-22T12:03:09Z INF +--------------------------------------------------------------------------------------------+
+2026-02-22T12:03:09Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-02-22T12:03:09Z INF |  https://lectures-passive-procurement-finished.trycloudflare.com                           |
+2026-02-22T12:03:09Z INF +--------------------------------------------------------------------------------------------+
+2026-02-22T12:03:09Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-02-22T12:03:09Z INF Version 2026.2.0 (Checksum b3279f2186a1c3c438ad5865e802bbbec26090c5d3fdb4ac1113f1143a94837a)
+2026-02-22T12:03:09Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-02-22T12:03:09Z INF Settings: map[ha-connections:1 protocol:quic url:http://localhost:3002]
+2026-02-22T12:03:09Z INF cloudflared will not automatically update on Windows systems.
+2026-02-22T12:03:09Z INF Generated Connector ID: 1b680156-2ed2-43e0-b4e7-bec983477ba1
+2026-02-22T12:03:09Z INF Initial protocol quic
+2026-02-22T12:03:09Z INF ICMP proxy will use 192.168.3.101 as source for IPv4
+2026-02-22T12:03:09Z INF ICMP proxy will use fe80::f564:e548:f8d4:ca34 in zone Wi-Fi as source for IPv6
+2026-02-22T12:03:09Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-02-22T12:03:09Z INF ICMP proxy will use 192.168.3.101 as source for IPv4
+2026-02-22T12:03:10Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:03:10Z INF ICMP proxy will use fe80::f564:e548:f8d4:ca34 in zone Wi-Fi as source for IPv6
+2026-02-22T12:03:10Z INF Starting metrics server on 127.0.0.1:20242/metrics
+2026-02-22T12:03:10Z INF Registered tunnel connection connIndex=0 connection=ec47c975-66b7-4702-972e-cce3dbf7f37d event=0 ip=198.41.200.43 location=bom10 protocol=quic
+2026-02-22T12:19:41Z ERR failed to accept incoming stream requests error="failed to accept QUIC stream: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:41Z ERR failed to run the datagram handler error="timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:41Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:41Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:41Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:42Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:43Z INF Registered tunnel connection connIndex=0 connection=915019a8-daa2-4428-8c77-c9c0bbd257c6 event=0 ip=198.41.200.43 location=bom10 protocol=quic
+2026-02-22T12:19:51Z ERR failed to accept incoming stream requests error="failed to accept QUIC stream: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:51Z ERR failed to run the datagram handler error="timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:51Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:51Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:51Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:51Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:56Z ERR Failed to dial a quic connection error="failed to dial to edge with quic: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:56Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.200.43
+2026-02-22T12:19:58Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.33
+2026-02-22T12:20:03Z ERR Failed to dial a quic connection error="failed to dial to edge with quic: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.33
+2026-02-22T12:20:03Z INF Retrying connection in up to 8s connIndex=0 event=0 ip=198.41.200.33
+2026-02-22T12:20:04Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:20:10Z INF Registered tunnel connection connIndex=0 connection=e2b41dc1-e6b4-416e-a723-01d10cff8672 event=0 ip=198.41.192.167 location=bom06 protocol=quic
+2026-02-22T12:43:15Z ERR failed to run the datagram handler error="timeout: no recent network activity" connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:15Z ERR failed to accept incoming stream requests error="failed to accept QUIC stream: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:15Z ERR failed to serve tunnel connection error="datagram manager encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:15Z ERR Serve tunnel error error="datagram manager encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:15Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:15Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-02-22T12:43:16Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:21Z ERR Failed to dial a quic connection error="failed to dial to edge with quic: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:21Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.192.167
+2026-02-22T12:43:24Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.37
+2026-02-22T12:43:26Z INF Registered tunnel connection connIndex=0 connection=b6097a90-3e01-4d12-889b-54cc03e221ff event=0 ip=198.41.192.37 location=bom03 protocol=quic
+2026-02-22T12:46:35Z INF Initiating graceful shutdown due to signal terminated ...
+2026-02-22T12:46:35Z ERR failed to run the datagram handler error="Application error 0x0 (remote)" connIndex=0 event=0 ip=198.41.192.37
+2026-02-22T12:46:35Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.37
+2026-02-22T12:46:35Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.37
+2026-02-22T12:46:35Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.37
+2026-02-22T12:46:35Z ERR Connection terminated connIndex=0
+2026-02-22T12:46:35Z ERR no more connections active and exiting
+2026-02-22T12:46:35Z INF Tunnel server stopped
+2026-02-22T12:46:35Z INF Metrics server stopped

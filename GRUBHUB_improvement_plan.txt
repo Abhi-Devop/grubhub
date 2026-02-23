@@ -1,0 +1,447 @@
+Here is my issue:
+
+Routing & product/category pages behave inconsistently (404s or product pages show empty / fallback data).
+
+Database configuration mismatch and portability problems (SQLite dev config pointing to an absolute Windows path; production uses Postgres + PostGIS).
+
+Frontend ↔ Backend integration problems (IDs / slugs mismatch, static data vs DB data, inconsistent link targets).
+
+Dev / infra & best-practices gaps that make project fragile / hard to maintain (secrets in repo, Prisma usage across apps, caching, deployments).
+
+Full solution at once (deep, file-level, step-by-step)
+1) Routing & product/category pages — what's wrong, exact files, and fixes
+Problem summary (frontend):
+
+Category and product routes exist under App Router: (customer)/category/[slug] and (customer)/product/[id]. The category page uses encodeURIComponent in links (good) and decodes on the page (good). Product pages try to read from Prisma DB by id. However, product links are generated from local static data (ALL_ITEMS) and use ids that do not match the DB UUIDs — so db.product.findUnique({ where: { id: decodedId } }) often returns null. Result: product page shows fallback or empty product or appears broken.
+
+Some 404s you saw likely came from missing dynamic file(s) before — but in this ZIP the route files do exist (under the (customer) group). The immediate cause of page failures is ID mismatch and sometimes missing DB file (see DB section).
+
+Exact file locations I inspected (and lines / key snippets):
+
+apps/web/src/app/(customer)/category/[slug]/page.tsx — client component (uses decodeURIComponent and ALL_ITEMS mapping).
+
+This file exists and uses encodeURIComponent() for links from CategoryScroller.
+
+apps/web/src/components/CategoryScroller.tsx — link generation.
+
+Uses: href={/category/${encodeURIComponent(cat.name)}}. (Good.)
+
+apps/web/src/components/ProductCard.tsx — product links.
+
+Link: href={/product/${item.id}} (line ~36 in file). This uses the static ALL_ITEMS id not DB id.
+
+apps/web/src/app/(customer)/product/[id]/page.tsx — server component that does:
+
+product = await db.product.findUnique({ where: { id: decodedId }, ... })
+
+
+So it expects the id to be the DB primary key (UUID). But product cards pass static ids that differ.
+
+Fix (concrete — pick one of two options, I recommend Option A):
+Option A — Best / least disruptive (recommended)
+
+Make frontend links use a stable DB field that you can control and keep consistent between DB and static data (e.g., sku or slug). Steps:
+
+Add slug (unique) to Prisma Product model (or use sku if already unique).
+
+Edit packages/database/schema.prisma:
+
+model Product {
+  id     String @id @default(uuid())
+  name   String
+  sku    String @unique
+  slug   String @unique  // <- add
+  ...
+}
+
+
+Run migration / generate locally (see DB steps below).
+
+Update ProductCard and FoodCard (wherever you create product links) to use slug:
+
+apps/web/src/components/ProductCard.tsx:
+
+// old
+<Link href={`/product/${item.id}`} ... />
+// new
+<Link href={`/product/${encodeURIComponent(item.slug ?? item.sku ?? item.id)}`} ... />
+
+
+If ALL_ITEMS is static and lacks slug, add slug keys there (preferably equal to DB slug). Or convert item.name to slug with a consistent function (but prefer DB-managed slug).
+
+Change the server product page query to find by slug:
+
+apps/web/src/app/(customer)/product/[id]/page.tsx → rename param variable for clarity:
+
+// file path kept the same; param is [id] but can be slug text
+const decoded = decodeURIComponent(id);
+// find by slug instead of by primary id
+product = await db.product.findUnique({ where: { slug: decoded }, include: { ... } });
+
+
+OR keep id and call the field sku/slug consistently.
+
+Seed/migrate DB to include slug values matching ALL_ITEMS.
+
+This ensures links lead to DB-backed products reliably.
+
+Option B — Quick temporary workaround
+
+If you can't touch DB schema now:
+
+Maintain a mapping between the static ALL_ITEMS id and the DB's id — but this is fragile and not recommended for production.
+
+2) Database configuration & portability — exact problems and fixes
+What I found (exact files + lines)
+
+packages/database/.env — line 1:
+
+DATABASE_URL="file:c:/Users/Abhishek/OneDrive/Desktop/.../packages/database/dev.db"
+
+
+(absolute Windows path)
+
+apps/api/.env — same absolute path to SQLite file (line 1).
+
+packages/database/schema.prisma data source uses provider = "sqlite".
+
+Why this is a problem
+
+Absolute Windows path breaks running on other OS (Linux/macOS/containers/CI). When other developers or CI/Docker try to run the app, Prisma will not find that file — DB calls fail and product pages that rely on DB return null/empty or errors.
+
+You're targeting Postgres (+ PostGIS) in production, but schema currently uses sqlite provider. Prisma doesn’t support dynamic provider switching per environment in the same schema file. This causes friction and "works on my machine" issues.
+
+Concrete fixes (recommended production-grade approach)
+A) Switch development to Postgres (recommended) — use Docker Compose
+
+Create a docker-compose.yml (if not present already) to run Postgres + Redis locally with volumes. Example:
+
+version: '3.8'
+services:
+  postgres:
+    image: postgis/postgis:15-3.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: grubhub_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+volumes:
+  pgdata:
+
+
+Change your Prisma datasource to PostgreSQL:
+
+packages/database/schema.prisma:
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+Update packages/database/.env and apps/api/.env for local dev:
+
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/grubhub_dev?schema=public"
+REDIS_URL="redis://localhost:6379"
+
+
+Run:
+
+docker compose up -d
+cd packages/database
+npx prisma migrate dev --name init
+npx prisma generate
+npm run seed   # if you have a seed script
+
+
+Update any raw SQL that used SQLite syntax (if any).
+
+Notes: If you need PostGIS extension, use a PostGIS image (as above). Add migration SQL CREATE EXTENSION IF NOT EXISTS postgis; in a migration script (or use prisma migrate with a migration.sql adding PostGIS). Prisma does not have native geometry types — for geospatial you typically use String/Json + raw queries, or use @db.VarChar with raw SQL for spatial queries.
+
+B) If you must keep SQLite for quick local dev (not recommended long-term)
+
+Change the DB path to a relative path:
+
+packages/database/.env:
+
+DATABASE_URL="file:./dev.db"
+
+
+apps/api/.env same change.
+
+Commit an .env.example (without secrets) and ignore actual .env.
+
+But be aware: SQLite != Postgres — features and SQL differ. Migrate to Postgres ASAP.
+
+Additional DB best-practices
+
+Use the same DB engine in dev and prod to avoid surprises.
+
+Keep .env files out of VCS. Replace actual .env values with .env.example.
+
+Add prisma generate and prisma migrate to your dev setup docs or package scripts.
+
+Use DB connection pooling in production; consider PgBouncer for many server instances.
+
+3) Frontend ↔ Backend integration & Prisma usage across apps
+Problems found & exact files:
+
+apps/web/src/lib/db.ts — shows PrismaClient instantiation using the typical global guard pattern (good). File snippet:
+
+const globalForPrisma = global as any;
+export const db = globalForPrisma.prisma || new PrismaClient({ log: ['query'] });
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+
+
+(This is good — avoids multiple clients during HMR.)
+
+apps/api/src/prisma/prisma.service.ts — Nest PrismaService extends PrismaClient and does $connect() in onModuleInit() (good).
+
+Issue: Both the Next.js app and the Nest API use Prisma clients (two separate processes). That’s OK. The real problem arises when DB engine differs or DB file path is missing — both processes will fail or behave differently.
+
+apps/api/src/main.ts sets CORS origins (explicit): includes localhost:3000 and 3001 and listens on port 3002 (good).
+
+ID/slug mismatch (again): frontend sends item.id (static) to product page but server tries to find product by DB id.
+
+Fixes & improvements
+
+Use a clear canonical key for product lookup (use slug or sku as described above). Update both frontend and backend to agree.
+
+Keep the global Prisma client pattern in Next.js (you already do that) — good.
+
+In NestJS stack, use a shared PrismaService provider and export it from AppModule — you already have prisma.service.ts which is correct. Ensure it references the same @prisma/client package generated by npx prisma generate (package maps in monorepo can cause duplicate @prisma/client versions—ensure a single version).
+
+Ensure @prisma/client build artifacts are generated in the monorepo root or packages/database and that both apps/web and apps/api resolve to the same @prisma/client package. If “database” re-exports @prisma/client (it does: packages/database/index.ts exports @prisma/client), ensure npm resolves properly in workspace.
+
+4) Dev / infra gaps, security & maintainability
+Problems
+
+Secrets in repo: apps/api/.env contains SMS API and other keys. That is sensitive.
+
+File: apps/api/.env (contains FAST2SMS_PRIVATE_KEY, SMS API keys, Razorpay keys placeholders).
+
+Absolute path to DB (already covered).
+
+Lack of simple local dev script to start DB + API + web.
+
+Using static ALL_ITEMS data alongside DB-backed models — leads to duplication and confusion.
+
+No .env.example present (create one).
+
+Some compiled files .next and dist present in repo: consider removing build artifacts from repo.
+
+Fixes & recommended steps
+
+Remove sensitive keys from repo. Add .gitignore entries for .env and secrets. Create .env.example.
+
+Add docker-compose.yml to run Postgres + Redis locally and document npm run dev steps.
+
+Add dev scripts to root package.json to run both apps (turbo already present; use concurrently or turbo dev).
+
+Move static sample data (ALL_ITEMS) to a seed script that inserts into DB — this keeps single source of truth.
+
+Add automated seed steps:
+
+cd packages/database && npx prisma db push && npx ts-node ./seed.ts
+
+Add logging and exception handling in Nest (Winston or built-in logger), and add request/response logging for debugging.
+
+5) Step-by-step action plan (prioritized — do these in order)
+Urgent (fixes that unblock local dev / stop 404s / missing product pages)
+
+Fix DATABASE_URL:
+
+Replace absolute Windows path with either file:./dev.db (temporary) or a proper Postgres URL (recommended).
+
+Files: packages/database/.env and apps/api/.env.
+
+Example temporary: DATABASE_URL="file:./dev.db"
+
+Switch product links to slug/sku (see Option A above).
+
+Files to edit: apps/web/src/components/ProductCard.tsx, apps/web/src/components/FoodCard.tsx, apps/web/src/app/(customer)/product/[id]/page.tsx
+
+Seed DB so the product slugs exist and match frontend static data (or remove static ALL_ITEMS and fetch from DB).
+
+Important (stability & correctness)
+
+Move dev to Postgres in Docker (see DB section). Update Prisma schema provider to postgresql.
+
+Add .env.example and remove secrets from Git (git rm --cached apps/api/.env if necessary).
+
+Ensure @prisma/client is generated and shared correctly (npx prisma generate in packages/database).
+
+Nice-to-have (performance / production-readiness)
+
+Add caching (Redis + Nest CacheModule) for heavy endpoints (store lists, category pages).
+
+Add CI scripts for migrations + seeds.
+
+Add health checks + monitoring.
+
+6) Concrete code snippets & commands (paste-and-run)
+A. Make DATABASE_URL portable (quick)
+
+Edit packages/database/.env:
+
+# packages/database/.env
+DATABASE_URL="file:./dev.db"
+
+
+Edit apps/api/.env similarly:
+
+DATABASE_URL="file:./dev.db"
+
+
+Regenerate / push prisma:
+
+cd packages/database
+npx prisma generate
+npx prisma db push
+
+B. Create slug and update product page (frontend)
+
+Migration (after you add slug to model and run prisma migrate or db push), update web product page query:
+
+apps/web/src/app/(customer)/product/[id]/page.tsx
+
+// old: find by id
+product = await db.product.findUnique({ where: { id: decodedId }, include: { ... } });
+
+// new: find by slug (assuming param is a slug)
+product = await db.product.findUnique({ where: { slug: decodedId }, include: { ... } });
+
+
+apps/web/src/components/ProductCard.tsx (link change)
+
+// if 'item.slug' exists
+<Link href={`/product/${encodeURIComponent(item.slug ?? item.sku ?? item.id)}`} className="...">
+  {/* overlay */}
+</Link>
+
+C. Debian/Container-friendly Postgres docker-compose (recommended)
+
+Create docker-compose.yml in repo root:
+
+version: '3.8'
+services:
+  postgres:
+    image: postgis/postgis:15-3.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: grubhub_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+volumes:
+  pgdata:
+
+
+.env for dev:
+
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/grubhub_dev"
+REDIS_URL="redis://localhost:6379"
+
+
+Then:
+
+docker compose up -d
+cd packages/database
+npx prisma migrate dev --name init
+npx prisma generate
+
+7) Tests & verification steps you should run locally (in order)
+
+Fix .env path or start Postgres in Docker. Ensure environment variables set in apps/web and apps/api.
+
+In packages/database run:
+
+npx prisma generate
+
+npx prisma db push (or npx prisma migrate dev if you use migrations)
+
+npm run seed (if you have a seed script)
+
+Start dev server:
+
+Root: npm run dev (turbo should start apps or run individually: cd apps/api && npm run dev and cd apps/web && npm run dev)
+
+Open category page: /category/Fruits%20%26%20Veg — it should render.
+
+Click a product: the product link should have /product/<slug> and the product page should load with DB-backed product details.
+
+8) Prompts for Antigravity / Kimi (so you can paste and auto-fix with an assistant)
+
+Prompt 1 — Fix DB path & add slug
+
+Act as a Senior Fullstack Developer. In this monorepo:
+1. Replace absolute Windows SQLite paths in `packages/database/.env` and `apps/api/.env` with a portable `file:./dev.db`.
+2. Update Prisma `schema.prisma` to add a unique `slug` field to the Product model.
+3. Generate Prisma client and create a migration or `db push`.
+4. Update frontend product links to use `slug` (in ProductCard.tsx and FoodCard.tsx).
+5. Update product page `page.tsx` to query `db.product.findUnique({ where: { slug: decoded } })`.
+6. Seed the DB with slug values matching `ALL_ITEMS`.
+Return the exact file diffs/patches only.
+
+
+Prompt 2 — Move dev to Postgres (Docker)
+
+Act as DevOps + Backend engineer. In this repo:
+1. Add docker-compose.yml for postgis/postgres + redis.
+2. Change `packages/database/schema.prisma` datasource `provider` to "postgresql".
+3. Add a migration that creates PostGIS extension.
+4. Provide exact .env values for local dev.
+5. Provide commands to run migrations and seed.
+Return full file contents to add and the exact CLI commands to execute.
+
+9) Misc notes & gotchas (hard lessons learned from scanning your repo)
+
+Do not commit .env with secrets — rotate the keys if pushed somewhere public. (I saw SMS keys in apps/api/.env.)
+
+If you use PostGIS, know Prisma does not provide first-class geometry types — you'll likely perform raw SQL queries for geometry comparisons.
+
+Keep a single source of truth — either DB-backed products or static files converted into DB seed. Mixing both creates reconciliation problems.
+
+The globalForPrisma pattern on Next.js server is correct; keep it. In NestJS, PrismaService extends PrismaClient is also good — just ensure a single generated @prisma/client package version across the monorepo.
+
+10) Minimal checklist you can follow right now (copy + paste)
+
+Update DB env (make relative)
+
+sed -i 's|file:c:.*packages/database/dev.db|file:./dev.db|' packages/database/.env apps/api/.env
+
+
+(Recommended) Start Postgres & Redis via Docker Compose (paste docker-compose from above)
+
+docker compose up -d
+
+
+Generate Prisma client:
+
+cd packages/database
+npx prisma generate
+npx prisma db push        # or npx prisma migrate dev --name init
+npm run seed              # if seed exists
+
+
+Edit links in frontend to use slug (see snippet above).
+
+Update apps/web/src/app/(customer)/product/[id]/page.tsx to query by slug.
+
+Start APIs:
+
+cd apps/api && npm run dev
+cd apps/web && npm run dev

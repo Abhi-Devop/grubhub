@@ -1,0 +1,169 @@
+
+.bodyWrapper {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2574&auto=format&fit=crop') no-repeat center center/cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.cardWrapper {
+    position: relative;
+    width: 400px;
+    height: 520px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+}
+
+.cardWrapper::before, .cardWrapper::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    background-size: 400%;
+    border-radius: 20px;
+    z-index: -1;
+    animation: animateGlow 20s linear infinite;
+}
+
+.cardWrapper::after {
+    filter: blur(40px);
+    opacity: 0.6;
+}
+
+@keyframes animateGlow {
+    0% { background-position: 0 0; }
+    50% { background-position: 300% 0; }
+    100% { background-position: 0 0; }
+}
+
+.loginCard {
+    position: absolute;
+    inset: 4px;
+    background: rgba(20, 20, 20, 0.85);
+    border-radius: 16px;
+    z-index: 10;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: white;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 5px;
+    color: #ff6600;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 30px;
+}
+
+.inputGroup {
+    width: 100%;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #aaa;
+    margin-bottom: 5px;
+    display: block;
+    text-transform: uppercase;
+}
+
+.input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input:focus {
+    border-color: #ff8000;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btnLogin {
+    width: 100%;
+    padding: 14px;
+    background: #ff6600;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.1s;
+}
+
+.btnLogin:active {
+    transform: scale(0.98);
+}
+
+.btnLogin:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.footerLinks {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.footerLinks a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.successCard {
+    transform: scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.successMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    color: white;
+    font-size: 3rem;
+    font-weight: 800;
+    opacity: 0;
+    transition: all 0.5s ease 0.3s;
+    z-index: 100;
+    text-shadow: 0 0 30px rgba(255, 102, 0, 0.8);
+    pointer-events: none;
+}
+
+.successMessageShow {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}

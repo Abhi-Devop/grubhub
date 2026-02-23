@@ -1,0 +1,7 @@
+name = "grubhub-web"
+compatibility_date = "2024-04-03"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+NEXT_PUBLIC_API_URL = "https://api.grubhub.com" # Update this in the dashboard after deployment

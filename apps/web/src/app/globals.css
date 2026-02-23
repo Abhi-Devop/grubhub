@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 26, 26, 26;
+  --background-start-rgb: 250, 249, 246; /* Off-white */
+  --background-end-rgb: 250, 249, 246;
+  
+  --brand-forest: #2D5A27;
+  --brand-terracotta: #D35400;
+  --brand-orange: #ff6600; /* Keeping legacy for compat */
+  
+  /* Motion Tokens */
+  --ease-natural: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-smooth: all 0.4s var(--ease-natural);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+body {
+  color: #1a1a1a;
+  background: rgb(var(--background-start-rgb));
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 3rem; /* 48px */
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: 2rem; /* 32px */
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .font-serif {
+    font-family: var(--font-playfair), serif;
+  }
+  .transition-natural {
+    transition: var(--transition-smooth);
+  }
+  .shadow-elevation-low {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .shadow-elevation-mid {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+  .shadow-elevation-high {
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+  }
+  .shadow-elevation-ultra {
+    box-shadow: 0 30px 70px rgba(0,0,0,0.15);
+  }
+
+  /* Premium Branding Utilities */
+  .brand-glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-sm;
+  }
+  
+  .brand-glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-xl;
+  }
+
+  .text-brand-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#D35400] via-[#ff6600] to-[#E67E22];
+  }
+
+  .btn-tactile {
+    @apply active:scale-95 transition-all duration-200 active:shadow-inner;
+  }
+
+  .card-hover {
+    @apply hover:shadow-elevation-high hover:-translate-y-2 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)];
+  }
+
+  .image-zoom-hover {
+     @apply overflow-hidden;
+  }
+  
+  .image-zoom-hover img {
+     @apply transition-transform duration-700 ease-out group-hover:scale-110;
+  }
+}

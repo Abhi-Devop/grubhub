@@ -1,0 +1,9 @@
+
+> web@0.1.0 build
+> next build
+
+You are using Node.js 16.13.1. For Next.js, Node.js version >= v18.17.0 is required.
+npm ERR! Lifecycle script `build` failed with error: 
+npm ERR! Error: command failed 
+npm ERR!   in workspace: web@0.1.0 
+npm ERR!   at location: C:\Users\Abhishek\OneDrive\Desktop\JOBSearch\Antigravity\GRUBHUB-ReactApp\apps\web 
